@@ -1,16 +1,16 @@
 import os
 from random import choice
-from time import sleep
-from copy import deepcopy
 
-heuristic = 1
+from time import sleep
+
+heuristic = 1 #choose wich heuristic to run code with that, you can pick 1 or 2 or 3,
+#  *Full exaplantion about this var in my report*
 
 
 class Block:
     bList = []
 
     def __init__(self, x, y, obs=False):
-        self.name = "emp"
         self.x = x
         self.y = y
         self.h = 0
@@ -19,10 +19,6 @@ class Block:
         self.obj = None
         self.mushroom = None
         self.dict = {"Up": None, "Down": None, "Left": None, "Right": None}
-        # self.up = None
-        #         # self.down = None
-        #         # self.left = None
-        #         # self.right = None
         Block.bList.append(self)
 
     # def __eq__(self, x, y):
@@ -110,11 +106,6 @@ while True:
     obs = Matrix[x][y].obs = True
 
 
-def computeHuristic(i):
-    if i == 1:
-        return Mushroom.hideMushrom
-
-
 def printTable():
     i = m
     while i >= 1:
@@ -123,8 +114,6 @@ def printTable():
         i -= 1
         print()
     # sleep(5)
-
-
 
 
 def goalTest():
@@ -140,6 +129,14 @@ def findMin(list):
         if min > child:
             min = child
     return min
+
+
+def findMax(list):
+    max = list[0]
+    for child in list:
+        if max < child:
+            max = child
+    return max
 
 
 def Right():
@@ -220,11 +217,26 @@ def lrtaCost(state, action):
 def computeHuristic(i):
     if i == 1:
         return Mushroom.hideMushrom
+    if i == 2:
+        tmpList = []
+        for mush in Mushroom.mList:
+            tmpList.append(abs(mush.x - mario.x) + abs(mush.y - mario.y))
+        return findMin(tmpList)
+    if i == 3:
+        tmpList = []
+        for i in range(0, len(Mushroom.mList)):
+            for j in range(i, len(Mushroom.mList)):
+                tmpList.append(
+                    abs(Mushroom.mList[i].x - Mushroom.mList[j].x) + abs(Mushroom.mList[i].y - Mushroom.mList[j].y))
+        return findMax(tmpList)
 
 
 print("First time")
 printTable()
+counter = 0
 while True:
+    counter += 1
+    print(counter, end=" : \n")
     if goalTest():
         print("Goal State :))")
         break
@@ -238,10 +250,18 @@ while True:
                 Mushroom.hideMushrom -= 1
                 mario.red = True
                 Matrix[mario.x][mario.y].mushroom = None
+                for mush in Mushroom.mList:
+                    if mush.x == mario.x and mush.y == mario.y:
+                        Mushroom.mList.remove(mush)
+                        break
             elif Matrix[mario.x][mario.y].mushroom.cl == "blue":
                 Mushroom.hideMushrom -= 1
                 mario.blue = True
                 Matrix[mario.x][mario.y].mushroom = None
+                for mush in Mushroom.mList:
+                    if mush.x == mario.x and mush.y == mario.y:
+                        Mushroom.mList.remove(mush)
+                        break
 
     if mario.pState != None:
         Matrix[mario.pState.x][mario.pState.y].dict[mario.pAction] = Matrix[mario.x][mario.y]
